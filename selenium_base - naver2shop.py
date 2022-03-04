@@ -12,15 +12,17 @@ import chromedriver_autoinstaller
 from bs4 import BeautifulSoup
 import time
 
-import sys
-sys.path.append('C:\\git')
+#import sys
+#sys.path.append('C:\\git')
+#
+#from yhlibe import controller as controller
+#from yhlibe import Datelib
 
-from yhlibe import controller as controller
-from yhlibe import Datelib
 #이거 예전 lib 위치를 가지고 있음
 #from yhlibe import stocklib
 
 import pyperclip
+import csv
 
 import requests
 import re
@@ -36,7 +38,7 @@ chromedriver_autoinstaller.install()
 
 
 driver = ''
-DATETYPE = '%Y-%m-%d'
+DATETYPE = '%Y-%m-%d-%H'
 # DATETYPE2 = '%Y.%m.%d'
 
 def DateToString(value):
@@ -141,18 +143,44 @@ def clickXpathByClass(classId, string):
 #    ActionChains(driver).move_to_element(selenium_element).perform()
     selenium_element.click()
     
-    
+
+def readCsv(path):
+    f = open(path, 'r', encoding='utf-8')
+    cin = csv.reader(f, delimiter=',')
+    temp = [row for row in cin]
+    f.close()
+    return temp
+
 
 allCount = 0
 ipAddr = ''
 timer = ''
 
+
+timerule = readCsv('../settime.txt')
+_timeRule = []
+for _rule in timerule:
+    if _rule[0][0] != '#':
+        _timeRule.append([int(_rule[0]), int(_rule[1])])
+    
+    
 while(True):
-    allCount += 1
-    print('시도 횟수', allCount)
+    
     try:
+        addTime = 1
+        
         if timer != '': 
             timer.cancel()
+        
+        #새벽시간입니다.
+        if _timeRule[-1][-1] == 1:
+            H = int(DateToString('now').split('-')[-1])
+            if 2 <= H and  7 >= H:
+                addTime = _timeRule[-1][0]
+                print('새벽시간 이므로',addTime,'(초) 만큼 시간이 추가됨')
+            
+        allCount += 1
+        print('시도 횟수', allCount)
         
         s = time.time()
         
@@ -203,7 +231,10 @@ while(True):
         driver.get("https://google.com")
         #print(driver.title)
         
-        timer = threading.Timer(1201, overTimer)
+        newsCount = random.randrange(_timeRule[0][0],_timeRule[0][1])
+        searchCount = random.randrange(_timeRule[2][0],_timeRule[2][1])
+        
+        timer = threading.Timer(1201+(addTime*(5+newsCount+searchCount)), overTimer)
         timer.start()
 
         time.sleep(2)
@@ -230,14 +261,19 @@ while(True):
             #print(_title.attrs['href'])
             news.append(_title.attrs['href'])
         
-        newsCount = random.randrange(2,5)
+#        newsCount = random.randrange(2,5)
+#        newsCount = random.randrange(_timeRule[0][0],_timeRule[0][1])
+            
         print('볼 뉴스', newsCount)
         
         for _ in range(newsCount):
             newsNum = random.randrange(1, len(news))
             print('볼 뉴스 번호', newsNum)
             driver.get(news[newsNum])
-            newsTime =  random.randrange(30, 60)
+#            newsTime =  random.randrange(30, 60)
+            newsTime =  random.randrange(_timeRule[1][0]+addTime,_timeRule[1][1]+addTime)
+            
+            
             print('뉴스 체류 시간',newsTime)
             scrollDownTime(driver, newsTime)
             
@@ -246,57 +282,65 @@ while(True):
         
         
         print('### 실시간 검색어 검색')
-            
-        n = [
-'최민정',
-'컬링',
-'서른 아홉',
-'곽윤기',
-'나이키',
-'손예진',
-'안철수',
-'이유빈',
-'소상공인 방역지원금',
-'김아랑',
-'나는 솔로',
-'우크라이나',
-'손예진',
-'RE100',
-'김종국',
-'김원웅',
-'곽윤기',
-'최민정 쇼트트랙 1500 M',
-'잠실새내역 이재명 대선',
-'정동원 코로나 무증상',
-'10시로 6인 유지',
-'방역지원금',
-'러시아 우크라이나',
-'유영',
-'발리예바',
-'서른아홉',
-'트루소바',
-'영탁',
-'촛불로 쫓겨난 세력 5년만에',
-'소상공인 방역지원금',
-'우크라 주권 해결',
-'이혜성',
-'이준석 복합쇼핑몰 광주',
-'청년희망적금 자격',
-'러시아',
-'생생정보',
-'싱어게인2',
-'윤석열',
-'러시아 우크라이나',
-'방역지원금',
-'이재명 윤석열 갤럽',
-'국제사회 제재에 동참',
-'나스닥',
-'돈바스',
-'청년희망적금',
-'서른 아홉',
-'체르노빌',
-'한가인'
-        ]
+        
+        words = readCsv('../realtimekeyword.txt')
+        n = []
+        for _word in words:
+            n.append(_word[0])
+        print('검색어 :', len(n))
+              
+#              
+#              
+#        n = [
+#'최민정',
+#'컬링',
+#'서른 아홉',
+#'곽윤기',
+#'나이키',
+#'손예진',
+#'안철수',
+#'이유빈',
+#'소상공인 방역지원금',
+#'김아랑',
+#'나는 솔로',
+#'우크라이나',
+#'손예진',
+#'RE100',
+#'김종국',
+#'김원웅',
+#'곽윤기',
+#'최민정 쇼트트랙 1500 M',
+#'잠실새내역 이재명 대선',
+#'정동원 코로나 무증상',
+#'10시로 6인 유지',
+#'방역지원금',
+#'러시아 우크라이나',
+#'유영',
+#'발리예바',
+#'서른아홉',
+#'트루소바',
+#'영탁',
+#'촛불로 쫓겨난 세력 5년만에',
+#'소상공인 방역지원금',
+#'우크라 주권 해결',
+#'이혜성',
+#'이준석 복합쇼핑몰 광주',
+#'청년희망적금 자격',
+#'러시아',
+#'생생정보',
+#'싱어게인2',
+#'윤석열',
+#'러시아 우크라이나',
+#'방역지원금',
+#'이재명 윤석열 갤럽',
+#'국제사회 제재에 동참',
+#'나스닥',
+#'돈바스',
+#'청년희망적금',
+#'서른 아홉',
+#'체르노빌',
+#'한가인'
+#        ]
         
         #request 값이 다르기에 버튼 클릭으로 변경
         #driver.get('https://naver.com')
@@ -309,30 +353,45 @@ while(True):
             driver.back()
             time.sleep(0.3)
         
-        searchCount = random.randrange(0,3)
-        print('검색어 갯수', searchCount+1)
+#        searchCount = random.randrange(0,3)
+#        searchCount = random.randrange(_timeRule[2][0],_timeRule[2][1])
+        print('검색어 찾기 갯수', searchCount)
         
-        searchKey = random.randrange(1, len(n))
-        for _key in n[searchKey]:
-            driver.find_element_by_xpath('//*[@id="query"]').send_keys(_key)
-            time.sleep(0.3)
-        driver.find_element_by_xpath('//*[@id="query"]').send_keys('\n')
+#        searchKey = random.randrange(1, len(n))
+#        for _key in n[searchKey]:
+#            driver.find_element_by_xpath('//*[@id="query"]').send_keys(_key)
+#            time.sleep(0.3)
+#            
+#            
+#        driver.find_element_by_xpath('//*[@id="query"]').send_keys('\n')
+#        
+##        searchTime =  random.randrange(30, 60)
+#        searchTime =  random.randrange(_timeRule[3][0], _timeRule[3][1])
+#        print('검색 체류 시간',searchTime)
+#        scrollDownTime(driver, searchTime)
         
-        searchTime =  random.randrange(30, 60)
-        print('검색 체류 시간',searchTime)
-        scrollDownTime(driver, searchTime)
-        
-        for _ in range(searchCount):
+        for k in range(searchCount):
             searchKey = random.randrange(1, len(n))
             
-            driver.find_element_by_xpath('//*[@id="nx_input_clear"]/i').click()    
+            if k == 0:
+                for _key in n[searchKey]:
+                    driver.find_element_by_xpath('//*[@id="query"]').send_keys(_key)
+                    time.sleep(0.3)
+                    
+                    
+                driver.find_element_by_xpath('//*[@id="query"]').send_keys('\n')
             
-            for _key in n[searchKey]:
-                driver.find_element_by_xpath('//*[@id="nx_query"]').send_keys(_key)
-                time.sleep(0.3)
-            driver.find_element_by_xpath('//*[@id="nx_query"]').send_keys('\n')
+            else:
+                driver.find_element_by_xpath('//*[@id="nx_input_clear"]/i').click()    
+                
+                for _key in n[searchKey]:
+                    driver.find_element_by_xpath('//*[@id="nx_query"]').send_keys(_key)
+                    time.sleep(0.3)
+                driver.find_element_by_xpath('//*[@id="nx_query"]').send_keys('\n')
             
-            searchTime =  random.randrange(30, 60)
+#            searchTime =  random.randrange(30, 60)
+            searchTime =  random.randrange(_timeRule[3][0]+addTime,_timeRule[3][1]+addTime)
+            
             print('검색 체류 시간',searchTime)
             scrollDownTime(driver, searchTime)
             
@@ -343,8 +402,14 @@ while(True):
 #        itemCode = '83197330370'
 #        text = '사과'
 #        itemCode = '82755608411'
-        text = '귤'
-        itemCode = '82850708305'        
+        
+        words = readCsv('../shopkeyword.txt')
+        
+        text = words[0][0]
+        itemCode = words[0][1]
+              
+#        text = '귤'
+#        itemCode = '82850708305'        
         
         ## 왠지 모르겠는데 실시간 검색어 이후 에러 ㅜ 한줄 실행시 잘됨
 #        ActionChains(driver).send_keys(Keys.HOME).perform()
@@ -487,26 +552,30 @@ while(True):
 #            
 #            _count += 1
             
+#        itemTime =  random.randrange(30, 60)
+        itemTime =  random.randrange(_timeRule[4][0]+addTime,_timeRule[4][1]+addTime)
         
-        itemTime =  random.randrange(40, 60)
         print('상품 체류 시간', itemTime)
         scrollDownTime(driver, itemTime)
         
         
         driver.find_element_by_xpath('//*[@id="REVIEW"]/a').click()
-        itemTime =  random.randrange(30, 50)
+#        itemTime =  random.randrange(30, 50)
+        itemTime =  random.randrange(_timeRule[5][0]+addTime,_timeRule[5][1]+addTime)
         print('리뷰 체류 시간', itemTime)
         scrollDownTime(driver, itemTime)
         
         
         driver.find_element_by_xpath('//*[@id="QNA"]/a').click()
-        itemTime =  random.randrange(30, 50)
+#        itemTime =  random.randrange(30, 50)
+        itemTime =  random.randrange(_timeRule[6][0]+addTime,_timeRule[6][1]+addTime)
         print('QNA 체류 시간', itemTime)
         scrollDownTime(driver, itemTime)
         
         #seller info
         driver.get(driver.current_url.split('?')[0]+'/seller')
-        itemTime =  random.randrange(10, 20)
+#        itemTime =  random.randrange(10, 20)
+        itemTime =  random.randrange(_timeRule[7][0]+addTime,_timeRule[7][1]+addTime)
         print('판매자 정보 체류 시간', itemTime)
         scrollDownTime(driver, itemTime)
         
