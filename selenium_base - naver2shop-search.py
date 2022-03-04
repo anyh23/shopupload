@@ -156,451 +156,98 @@ allCount = 0
 ipAddr = ''
 timer = ''
 
+        
+options = webdriver.ChromeOptions() 
+#options.add_argument("--auto-open-devtools-for-tabs")
 
-timerule = readCsv('../settime.txt')
-_timeRule = []
-for _rule in timerule:
-    if _rule[0][0] != '#':
-        _timeRule.append([int(_rule[0]), int(_rule[1])])
-    
-    
-while(True):
-    
-    try:
-        addTime = 1
-        
-        if timer != '': 
-            timer.cancel()
-        
-        #새벽시간입니다.
-        if _timeRule[-1][-1] == 1:
-            H = int(DateToString('now').split('-')[-1])
-            if 2 <= H and  7 >= H:
-                addTime = _timeRule[-1][0]
-                print('새벽시간 이므로',addTime,'(초) 만큼 시간이 추가됨')
-            
-        allCount += 1
-        print('시도 횟수', allCount)
-        
-        s = time.time()
-        
-        print(ipAddr)
-        
-        os.popen('cd C:/git/adb && C:/git/adb/ipch.bat')
-        print('IP 주소 변경')
-        
-        while(True):
-            try:
-                req = requests.get("http://ipconfig.kr")
-                print(re.search(r'IP Address : (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})', req.text)[1])
-                ipAddr = re.search(r'IP Address : (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})', req.text)[1]
-                break
-            except:
-                pass
-        
-        #def checkip():
-        #    res = requests.get('http://ipconfig.kr') # 아이피 알려주는 단순 사이트에 접속해 값 리턴
-        #    soup = BeautifulSoup(res.text, 'html.parser')
-        #    ip = soup.select_one('body').getText().split() # soup.find 사용해도 됨 배열 형태로 
-        #    return ip
-        #
-        #checkip()
-        
-        #auto selenium()
-        
-        
-        #cookies = driver.get_cookies()
-        
-        #driver = webdriver.Chrome('../chromedriver_win3298/chromedriver')
-        
-        #url = 'https://naver.com'
-        #driver.get(url)
-        
-        time.sleep(5)
-        
-        options = webdriver.ChromeOptions() 
-        #options.add_argument("--auto-open-devtools-for-tabs")
-        
-        mobile_emulation = { "deviceName": "Nexus 5" }
-        
-        options.add_experimental_option("mobileEmulation", mobile_emulation)
-        options.add_experimental_option("excludeSwitches", ["enable-automation"])
-        options.add_experimental_option('useAutomationExtension', False)
-        #driver = webdriver.Chrome(options=options, executable_path=r'../chromedriver_win3298/chromedriver')
-        driver = webdriver.Chrome(options=options)
-        driver.get("https://google.com")
+mobile_emulation = { "deviceName": "Nexus 5" }
+
+options.add_experimental_option("mobileEmulation", mobile_emulation)
+options.add_experimental_option("excludeSwitches", ["enable-automation"])
+options.add_experimental_option('useAutomationExtension', False)
+#driver = webdriver.Chrome(options=options, executable_path=r'../chromedriver_win3298/chromedriver')
+driver = webdriver.Chrome(options=options)
+driver.get("https://google.com")
         #print(driver.title)
-        
-        newsCount = random.randrange(_timeRule[0][0],_timeRule[0][1])
-        searchCount = random.randrange(_timeRule[2][0],_timeRule[2][1])
-        
-        timer = threading.Timer(1201+(addTime*(5+newsCount+searchCount)), overTimer)
-        timer.start()
+       
+time.sleep(1)
+driver.get("https://naver.com")
+ 
+words = readCsv('../shopkeyword.txt')
+text = words[0][0]
+itemCode = words[0][1]            
 
-        time.sleep(2)
-        driver.get("https://naver.com")
-        
-        scrollDown(driver)
-        time.sleep(1)
-        scrollDown(driver)
-        time.sleep(1)
-        
-        
-        clickXpathByClass('nav_list_wrap native_scroll', '뉴스')
-#        driver.find_element_by_xpath('//*[@id="NAV_LIST"]/ul/li[12]/a').click()
-        
-        time.sleep(1)
-        
-        print('### 뉴스')
-        html = driver.page_source
-        soup = BeautifulSoup(html, 'html.parser')
-        title = soup.find_all(class_='cjs_news_a')
-        
-        news = []
-        for _title in title: 
-            #print(_title.attrs['href'])
-            news.append(_title.attrs['href'])
-        
-#        newsCount = random.randrange(2,5)
-#        newsCount = random.randrange(_timeRule[0][0],_timeRule[0][1])
+scrollDown(driver)
+time.sleep(1)
+scrollDown(driver)
+time.sleep(1)
+       
+for _key in text:
+    driver.find_element_by_xpath('//*[@id="query"]').send_keys(_key)
+    time.sleep(0.3)
+
+driver.find_element_by_xpath('//*[@id="query"]').send_keys('\n')
             
-        print('볼 뉴스', newsCount)
-        
-        for _ in range(newsCount):
-            newsNum = random.randrange(1, len(news))
-            print('볼 뉴스 번호', newsNum)
-            driver.get(news[newsNum])
-#            newsTime =  random.randrange(30, 60)
-            newsTime =  random.randrange(_timeRule[1][0]+addTime,_timeRule[1][1]+addTime)
-            
-            
-            print('뉴스 체류 시간',newsTime)
-            scrollDownTime(driver, newsTime)
-            
-        time.sleep(1)
-        #len(driver.get_cookies())
-        
-        
-        print('### 실시간 검색어 검색')
-        
-        words = readCsv('../realtimekeyword.txt')
-        n = []
-        for _word in words:
-            n.append(_word[0])
-        print('txt에 있는 검색어 갯수 :', len(n))
-              
-#              
-#              
-#        n = [
-#'최민정',
-#'컬링',
-#'서른 아홉',
-#'곽윤기',
-#'나이키',
-#'손예진',
-#'안철수',
-#'이유빈',
-#'소상공인 방역지원금',
-#'김아랑',
-#'나는 솔로',
-#'우크라이나',
-#'손예진',
-#'RE100',
-#'김종국',
-#'김원웅',
-#'곽윤기',
-#'최민정 쇼트트랙 1500 M',
-#'잠실새내역 이재명 대선',
-#'정동원 코로나 무증상',
-#'10시로 6인 유지',
-#'방역지원금',
-#'러시아 우크라이나',
-#'유영',
-#'발리예바',
-#'서른아홉',
-#'트루소바',
-#'영탁',
-#'촛불로 쫓겨난 세력 5년만에',
-#'소상공인 방역지원금',
-#'우크라 주권 해결',
-#'이혜성',
-#'이준석 복합쇼핑몰 광주',
-#'청년희망적금 자격',
-#'러시아',
-#'생생정보',
-#'싱어게인2',
-#'윤석열',
-#'러시아 우크라이나',
-#'방역지원금',
-#'이재명 윤석열 갤럽',
-#'국제사회 제재에 동참',
-#'나스닥',
-#'돈바스',
-#'청년희망적금',
-#'서른 아홉',
-#'체르노빌',
-#'한가인'
-#        ]
-        
-        #request 값이 다르기에 버튼 클릭으로 변경
-        #driver.get('https://naver.com')
-        #뉴스에서는 클릭이 안됨
-        #driver.find_element_by_xpath('//*[@id="_sch"]/section/div/h1/a[1]').click()
-        while(True):
-#            print(driver.current_url)
-            if driver.current_url == ('https://m.naver.com/'):
-                break
-            driver.back()
-            time.sleep(0.3)
-        
-#        searchCount = random.randrange(0,3)
-#        searchCount = random.randrange(_timeRule[2][0],_timeRule[2][1])
-        print('검색어 찾기 갯수', searchCount)
-        
-#        searchKey = random.randrange(1, len(n))
-#        for _key in n[searchKey]:
-#            driver.find_element_by_xpath('//*[@id="query"]').send_keys(_key)
-#            time.sleep(0.3)
-#            
-#            
-#        driver.find_element_by_xpath('//*[@id="query"]').send_keys('\n')
-#        
-##        searchTime =  random.randrange(30, 60)
-#        searchTime =  random.randrange(_timeRule[3][0], _timeRule[3][1])
-#        print('검색 체류 시간',searchTime)
-#        scrollDownTime(driver, searchTime)
-        
-        for k in range(searchCount):
-            searchKey = random.randrange(1, len(n))
-            
-            if k == 0:
-                for _key in n[searchKey]:
-                    driver.find_element_by_xpath('//*[@id="query"]').send_keys(_key)
-                    time.sleep(0.3)
-                    
-                    
-                driver.find_element_by_xpath('//*[@id="query"]').send_keys('\n')
-            
-            else:
-                driver.find_element_by_xpath('//*[@id="nx_input_clear"]/i').click()    
-                
-                for _key in n[searchKey]:
-                    driver.find_element_by_xpath('//*[@id="nx_query"]').send_keys(_key)
-                    time.sleep(0.3)
-                driver.find_element_by_xpath('//*[@id="nx_query"]').send_keys('\n')
-            
-#            searchTime =  random.randrange(30, 60)
-            searchTime =  random.randrange(_timeRule[3][0]+addTime,_timeRule[3][1]+addTime)
-            
-            print('검색 체류 시간',searchTime)
-            scrollDownTime(driver, searchTime)
-            
-        time.sleep(1)
-        
-        print('### 쇼핑')
-#        text = '레진'
-#        itemCode = '83197330370'
-#        text = '사과'
-#        itemCode = '82755608411'
-        
-        words = readCsv('../shopkeyword.txt')
-        
-        text = words[0][0]
-        itemCode = words[0][1]
-              
-#        text = '귤'
-#        itemCode = '82850708305'        
-        
-        ## 왠지 모르겠는데 실시간 검색어 이후 에러 ㅜ 한줄 실행시 잘됨
-#        ActionChains(driver).send_keys(Keys.HOME).perform()
-#        
-#        time.sleep(0.5)
-#        driver.find_element_by_xpath('//*[@id="_sch"]/section/div/h1/a[1]/i').click()
-#        time.sleep(0.5)
-#        driver.find_element_by_xpath('//*[@id="MM_logo"]/a/span').click()
-#        time.sleep(0.5)
-#        driver.find_element_by_xpath('//*[@id="MM_aside_shortcut_wrap"]/div[1]/div[1]/ol/li[5]/a').click()
-#        time.sleep(0.5)
-        
-#        driver.find_element_by_xpath('//*[@id="sear"]').click()    
-#            
-#        for _key in text:
-#            driver.find_element_by_xpath('//*[@id="sear"]').send_keys(_key)
-#            time.sleep(0.3)
-#        driver.find_element_by_xpath('//*[@id="sear"]').send_keys('\n')        
-        
-        
-#        driver.get('https://m.naver.com/')
-#        https://m.naver.com/aside/
-#        https://m.shopping.naver.com/home/m/index.naver
-        
-        driver.find_element_by_xpath('//*[@id="nx_input_clear"]/i').click()
-        
-        for _key in text:
-            driver.find_element_by_xpath('//*[@id="nx_query"]').send_keys(_key)
-            time.sleep(0.3)
-        driver.find_element_by_xpath('//*[@id="nx_query"]').send_keys('\n')
-        
-        time.sleep(1)
-        
-        clickXpathByClass('api_list_scroll_wrap', '쇼핑')
+clickXpathByClass('api_list_scroll_wrap', '쇼핑')
 #        driver.find_element_by_xpath('//*[@id="_sch_tab"]/div[1]/div/div/ul/li[2]/a').click()
 
+        
+rank = 0
+n = 1
+
+nexeFlag = True
+while(nexeFlag):
+
+    for _ in range(5):
+        ActionChains(driver).send_keys(Keys.END).perform()
         time.sleep(1)
+    
+    html = driver.page_source
+    soup = BeautifulSoup(html, 'html.parser')
+    title = soup.find_all(class_='product_list_item__2tuKA')
+    
+    for idx, _title in enumerate(title):
+        
+#        element = driver.find_element(by='id', value=_title['id'])
+#        ActionChains(driver).move_to_element(element).perform()
+        
+        if str(_title).find('광고') == -1:
+            rank += 1    
+        
+        ## 찾은 경우
+        if str(_title['id']).find(itemCode) != -1:
+            print('현재 상품 순위 :', rank)
+#            driver.find_element(by='id', value=_title['id']).click()
+            nexeFlag = False
+            break
         
         
-        rank = 0
-        n = 1
-        
-        nexeFlag = True
-        while(nexeFlag):
-            
-            for _ in range(5):
-                ActionChains(driver).send_keys(Keys.END).perform()
-                time.sleep(1)
+        ## 없는 경우
+        if idx == len(title)-1:
+            n += 1
+            print('다음페이지로 이동', n)
         
             html = driver.page_source
             soup = BeautifulSoup(html, 'html.parser')
-            title = soup.find_all(class_='product_list_item__2tuKA')
-            
-            for idx, _title in enumerate(title):
-                
-                element = driver.find_element(by='id', value=_title['id'])
-                ActionChains(driver).move_to_element(element).perform()
-                
-                if str(_title).find('광고') == -1:
-                    rank += 1    
-                
-                ## 찾은 경우
-                if str(_title['id']).find(itemCode) != -1:
-                    print('현재 상품 순위 :', rank)
-                    driver.find_element(by='id', value=_title['id']).click()
-                    nexeFlag = False
+            numList = soup.find_all(class_='paginator_list_paging__2cmhX')
+        
+            nextNum = numList[0].findNext('a')
+            while(True):
+                if n == int(nextNum.getText()):
                     break
-                
-                
-                ## 없는 경우
-                if idx == len(title)-1:
-                    n += 1
-                    print('다음페이지로 이동', n)
-                
-                    html = driver.page_source
-                    soup = BeautifulSoup(html, 'html.parser')
-                    numList = soup.find_all(class_='paginator_list_paging__2cmhX')
-                
-                    nextNum = numList[0].findNext('a')
-                    while(True):
-                        if n == int(nextNum.getText()):
-                            break
-                        nextNum = nextNum.findNext('a')
-                    
-                    xpath = xpath_soup(nextNum)
-                    selenium_element = driver.find_element_by_xpath(xpath)
-                    ActionChains(driver).move_to_element(selenium_element).perform()
-                    selenium_element.click()
-                   
-                    
-                if n >= 11:
-                    nexeFlag = False
-#                    print('최대 탐색 범위를 넘김')
-                    
-                    
-                    raise ValueError('최대 shop 탐색 범위를 넘김')
-                         
+                nextNum = nextNum.findNext('a')
             
+            xpath = xpath_soup(nextNum)
+            selenium_element = driver.find_element_by_xpath(xpath)
+            ActionChains(driver).move_to_element(selenium_element).perform()
+            selenium_element.click()
+           
             
-#        ActionChains(driver).send_keys(Keys.HOME).perform()
-        time.sleep(1)    
-
-        
-# 한개씩 탐색하면서 추가로 나오는 것을 list에 추가해서 탐색하는 로직인데 에러가 있음        
-#        rank = 0
-#        
-#        html = driver.page_source
-#        soup = BeautifulSoup(html, 'html.parser')
-#        title = soup.find_all(class_='product_list_item__2tuKA')
-#        
-#        _count = 0
-##        for idx, _title in enumerate(title):
-##        while(True):
+        if n >= 11:
+            nexeFlag = False
 #
-##            print(len(title))
-#            _title = title[_count]
-#            element = driver.find_element(by='id', value=_title['id'])
-#            ActionChains(driver).move_to_element(element).perform()
-#            
-##            _count += 1
-#            
-##            if str(_title).find('광고') == -1:
-##                rank += 1    
-##            
-##            if str(_title['id']).find('82390439558') != -1:
-##                print('현재 순위 :', rank)
-##                break
-#            
-#            sizeTitle = len(title)
-#            
-#            html = driver.page_source
-#            soup = BeautifulSoup(html, 'html.parser')
-#            title += list(soup.find_all(class_='product_list_item__2tuKA'))
-#            
-#            title = list(set(title))
-#            print(len(title))
-#            
-##            if len(title) == sizeTitle:
-##                break
-#            
-#            _count += 1
-            
-#        itemTime =  random.randrange(30, 60)
-        itemTime =  random.randrange(_timeRule[4][0]+addTime,_timeRule[4][1]+addTime)
-        
-        print('상품 체류 시간', itemTime)
-        scrollDownTime(driver, itemTime)
-        
-        
-        driver.find_element_by_xpath('//*[@id="REVIEW"]/a').click()
-#        itemTime =  random.randrange(30, 50)
-        itemTime =  random.randrange(_timeRule[5][0]+addTime,_timeRule[5][1]+addTime)
-        print('리뷰 체류 시간', itemTime)
-        scrollDownTime(driver, itemTime)
-        
-        
-        driver.find_element_by_xpath('//*[@id="QNA"]/a').click()
-#        itemTime =  random.randrange(30, 50)
-        itemTime =  random.randrange(_timeRule[6][0]+addTime,_timeRule[6][1]+addTime)
-        print('QNA 체류 시간', itemTime)
-        scrollDownTime(driver, itemTime)
-        
-        #seller info
-        driver.get(driver.current_url.split('?')[0]+'/seller')
-#        itemTime =  random.randrange(10, 20)
-        itemTime =  random.randrange(_timeRule[7][0]+addTime,_timeRule[7][1]+addTime)
-        print('판매자 정보 체류 시간', itemTime)
-        scrollDownTime(driver, itemTime)
-        
-#       driver.find_element(by='id', value=image[searchTime].findNext('img').attrs['id']).click()
-        
-            
-        #쿠키삭제
-        driver.delete_all_cookies()
-        print('쿠키를 삭제 합니다')
-        
-        #인터넷 기록 삭제
-        #https://pythondocs.net/selenium/%EC%85%80%EB%A0%88%EB%8B%88%EC%9B%80-%ED%81%AC%EB%A1%A4%EB%9F%AC-%EA%B8%B0%EB%B3%B8-%EC%82%AC%EC%9A%A9%EB%B2%95/#%EC%BF%A0%ED%82%A4_%EA%B0%92_%EC%96%BB%EA%B8%B0
-        #driver.get('chrome://settings/clearBrowserData')
-        
-        
-        driver.close()
-        print('총 시간 (초)', time.time() - s)
-        
-    except ValueError as E:
-        print('restart', E)
-        driver.close()
-    
-    except Exception as E:
-        print(E)
 
+driver.close()
     
     
 
