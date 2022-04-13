@@ -405,9 +405,14 @@ while(True):
         
         words = readCsv('../shopkeyword.txt')
         
-        text = words[0][0]
-        itemCode = words[0][1]
-              
+        wordKey = random.randrange(0, len(words))
+        
+        text = words[wordKey][0]
+        itemCode = words[wordKey][1]
+        
+        print(text, itemCode)
+        
+        
 #        text = '귤'
 #        itemCode = '82850708305'        
         
