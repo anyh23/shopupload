@@ -186,7 +186,8 @@ while(True):
         
         print(ipAddr)
         
-        os.popen('cd C:/git/adb && C:/git/adb/ipch.bat')
+        os.popen('cd ../adb && ipch.bat')
+        #os.popen('cd C:/git/adb && C:/git/adb/ipch.bat')
         print('IP 주소 변경')
         
         while(True):
