@@ -186,7 +186,7 @@ while(True):
         
         print(ipAddr)
         
-        os.popen('cd ../adb && ipch.bat')
+        a = os.popen('cd ../adb && ipch.bat')
         os.popen('cd C:/git/adb && C:/git/adb/ipch.bat')
         print('IP 주소 변경')
         
@@ -458,6 +458,9 @@ while(True):
         rank = 0
         n = 1
         
+        visitItem = random.randrange(1, 20)
+        
+        
         nexeFlag = True
         while(nexeFlag):
             
@@ -484,6 +487,12 @@ while(True):
                     nexeFlag = False
                     break
                 
+                ## 다른아이템 하나 클릭
+#                if idx == visitItem:
+#                    driver.find_element(by='id', value=_title['id']).click()
+#                    time.sleep(10)
+#                    driver.back()
+#                    visitItem = 99999
                 
                 ## 없는 경우
                 if idx == len(title)-1:
@@ -562,7 +571,37 @@ while(True):
         itemTime =  random.randrange(_timeRule[4][0]+addTime,_timeRule[4][1]+addTime)
         
         print('상품 체류 시간', itemTime)
+        
+        for _ in range(3):
+            ActionChains(driver).send_keys(Keys.END).perform()
+            time.sleep(0.5)
+        
+        html = driver.page_source
+        soup = BeautifulSoup(html, 'html.parser')
+        numList = soup.find_all(class_= 'se_smartstore_wrap')
+        
+        clickList = ['상세정보 펼쳐보기']
+        _urlList = []
+        
+        for num in numList:
+            num = num.findNext('button')
+            for click in clickList:
+                if str(num.getText()).find(click) != -1:
+                    xpath = xpath_soup(num)
+        try:
+            selenium_element = driver.find_element_by_xpath(xpath)
+            ActionChains(driver).move_to_element(selenium_element).perform()
+            for _ in range(6):
+                ActionChains(driver).send_keys(Keys.DOWN).perform()
+            
+            time.sleep(2)
+            selenium_element = driver.find_element_by_xpath(xpath)
+            selenium_element.click()
+        except:
+            pass
+        
         scrollDownTime(driver, itemTime)
+
         
         
         driver.find_element_by_xpath('//*[@id="REVIEW"]/a').click()
