@@ -488,11 +488,11 @@ while(True):
                     break
                 
                 ## 다른아이템 하나 클릭
-#                if idx == visitItem:
-#                    driver.find_element(by='id', value=_title['id']).click()
-#                    time.sleep(10)
-#                    driver.back()
-#                    visitItem = 99999
+                if idx == visitItem:
+                    driver.find_element(by='id', value=_title['id']).click()
+                    time.sleep(10)
+                    driver.back()
+                    visitItem = 99999
                 
                 ## 없는 경우
                 if idx == len(title)-1:
@@ -597,7 +597,8 @@ while(True):
             time.sleep(2)
             selenium_element = driver.find_element_by_xpath(xpath)
             selenium_element.click()
-        except:
+        except Exception as E:
+            print('더 보기 클릭 에러',E)
             pass
         
         scrollDownTime(driver, itemTime)
