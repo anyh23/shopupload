@@ -12,7 +12,7 @@ import sys
 sys.path.append('C:\\git')
 
 import datetime
-from yhlibe import controller as controller
+#from yhlibe import controller as controller
 
 import csv
 import json
@@ -124,7 +124,7 @@ for i, FileName in enumerate(listUseFiles):
         except:
             text += '<S>'
         
-    controller.insertBulk(datalist, 'cubist_naver_message', esUrl)    
+    insertBulk(datalist, 'cubist_naver_message', esUrl)    
 
 
 
@@ -139,7 +139,7 @@ for idx, _me in enumerate(memo):
     dic['value'] = text
     datalist.append([_id, dic])
 
-controller.insertBulk(datalist, 'cubist_naver_memo', esUrl)    
+    insertBulk(datalist, 'cubist_naver_memo', esUrl)    
     
 
 
@@ -155,7 +155,7 @@ for idx, _me in enumerate(memo):
     datalist.append([_id, dic])
         
     
-controller.insertBulk(datalist, 'cubist_naver_sid', esUrl)    
+    insertBulk(datalist, 'cubist_naver_sid', esUrl)    
 
 
 
@@ -196,7 +196,7 @@ for idx, _me in enumerate(memo):
     datalist.append([_id, dic])
         
     
-controller.insertBulk(datalist, 'cubist_naver_search_add', esUrl)    
+    insertBulk(datalist, 'cubist_naver_search_add', esUrl)    
 
 
 
@@ -213,7 +213,7 @@ for idx, _me in enumerate(memo):
     
     datalist.append([_id, dic])
     
-controller.insertBulk(datalist, 'cubist_naver_keyword', esUrl)
+    insertBulk(datalist, 'cubist_naver_keyword', esUrl)
 
 
 
