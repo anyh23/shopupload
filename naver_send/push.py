@@ -97,9 +97,9 @@ for file in listFile:
 print(len(listUseFiles))
 
 
-idx = 0
-for i, FileName in enumerate(listUseFiles):
 
+for i, FileName in enumerate(listUseFiles):
+    idx = 0
     _type = FileName.split('[')[1].split(']')[0]
     
     datalist = []
@@ -111,7 +111,7 @@ for i, FileName in enumerate(listUseFiles):
             _me = _me[0]
             
             if _me == '<E>':
-                _id = ((i+1) * 10) + idx + 1
+                _id = ((i+1) * 100) + idx + 1
                 dic = {}
                 dic['id'] = _id
                 dic['value'] = text
