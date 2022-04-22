@@ -125,7 +125,7 @@ for i, FileName in enumerate(listUseFiles):
             text += '<S>'
         
     insertBulk(datalist, 'cubist_naver_message', esUrl)    
-
+    print(FileName, '완료')
 
 
 
@@ -140,7 +140,7 @@ for idx, _me in enumerate(memo):
     datalist.append([_id, dic])
 
 insertBulk(datalist, 'cubist_naver_memo', esUrl)    
-    
+print('2_명언or브랜드 한마디.txt', '완료')    
 
 
 
@@ -156,7 +156,7 @@ for idx, _me in enumerate(memo):
         
     
 insertBulk(datalist, 'cubist_naver_sid', esUrl)    
-
+print('3_네이버아이디.txt', '완료') 
 
 
 # keyword = [['ceooyw0120','네이버12!'],
@@ -197,7 +197,7 @@ for idx, _me in enumerate(memo):
         
     
 insertBulk(datalist, 'cubist_naver_search_add', esUrl)    
-
+print('4_검색더보기.txt', '완료') 
 
 
 datalist = []
@@ -214,7 +214,7 @@ for idx, _me in enumerate(memo):
     datalist.append([_id, dic])
     
 insertBulk(datalist, 'cubist_naver_keyword', esUrl)
-
+print('5_키워드.txt', '완료') 
 
 
 
